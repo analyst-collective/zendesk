@@ -5,8 +5,8 @@
 with valid_tickets as
 (
 	select distinct ticket_id
-	from zendesk_pipeline.audits a
-	inner join zendesk_pipeline.audits__events e
+	from zendesk.audits a
+	inner join zendesk.audits__events e
 		on a.id = e._rjm_source_key_id
 	where e.value = 'new'
 )
@@ -14,8 +14,7 @@ with valid_tickets as
 select distinct
 	id as ticket_id,
 	status,
-	type,
-	via__channel as channel,
+	satisfaction_rating__score as satisfaction_rating,
 	created_at::datetime as ticket_date
-from zendesk_pipeline.tickets
+from zendesk.tickets
 where id in (select * from valid_tickets)

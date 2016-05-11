@@ -3,4 +3,4 @@ select
 	name,
 	email,
 	role
-from zendesk_pipeline.users 
+from zendesk.users 

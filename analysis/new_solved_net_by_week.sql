@@ -4,7 +4,10 @@ ticket_summary as
 	select
 		*, date_trunc('week', ticket_date)::date as ticket_week,
 		date_trunc('week', solved_date)::date as solved_week
-	from ac_yevgeniy.zendesk_ticket_summary
+	from {{ref("zendesk_ticket_summary")}}
+	where
+		-- limit to this year's tickets
+        ticket_date > '2016-01-01'
 ),
 
 new_tickets as
@@ -18,6 +21,8 @@ solved_tickets as
 (
 	select solved_week as week, count(*) as num_solved
 	from ticket_summary
+	-- make sure the ticket is actually solved
+	where solved_week is not null
 	group by solved_week
 )
 
