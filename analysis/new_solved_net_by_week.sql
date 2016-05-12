@@ -27,13 +27,13 @@ solved_tickets as
 )
 
 select
-	week,
-	sum(num_new) over(order by week rows unbounded preceding) as cum_new,
-	sum(num_solved) over(order by week rows unbounded preceding) as cum_solved,
+	week, num_new, num_solved,
 	sum(backlog) over(order by week rows unbounded preceding) as cum_backlog
 from
 (
-	select new_tickets.week, num_new, num_solved, (num_new-num_solved) as backlog
+	select
+		new_tickets.week, nvl(num_new,0) as num_new, nvl(num_solved,0) as num_solved,
+		(nvl(num_new,0) - nvl(num_solved,0)) as backlog
 	from new_tickets
 	left outer join solved_tickets
 		on new_tickets.week = solved_tickets.week

@@ -43,7 +43,7 @@ author_stats as
 		datediff(min, ticket_date, solved_date)/60.0 hours_to_solved,
 		satisfaction_score
 	from single_agent_tickets a
-	inner join {{ref("ac_yevgeniy.zendesk_ticket_summary")}} b
+	inner join {{ref("zendesk_ticket_summary")}} b
 		on a.ticket_id = b.ticket_id
 	-- limit to solved tickets only
 	where solved_date is not null
@@ -51,6 +51,7 @@ author_stats as
 
 select
 	audit_author_id,
+	count(ticket_id) as num_tickets_solved,
 	avg(hours_to_solved) avg_hours_to_solved,
 	avg(satisfaction_score) as avg_satisfaction_score
 from author_stats
