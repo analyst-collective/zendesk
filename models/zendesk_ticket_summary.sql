@@ -1,7 +1,14 @@
 with
 ticket_info as
 (
-	select ticket_id, ticket_date
+	select
+		ticket_id, ticket_date,
+		-- convert to numerical score, ignore offered/unoffered surveys
+		case
+			when satisfaction_rating = 'good' then 1.0
+			when satisfaction_rating = 'bad' then 0.0
+			else null
+		end as satisfaction_score
 	from {{ref("zendesk_tickets")}}
 ),
 
@@ -26,7 +33,7 @@ first_audit_dates as
         -- look at events from admins and agents only
         audit_author_id in (select * from admins_and_agents)
         -- look at comments only
-        and audit_type in 'Comment'
+        and audit_type = 'Comment'
         -- look at public audits only
         and is_audit_public = 1
     group by ticket_id, ticket_date
@@ -34,17 +41,17 @@ first_audit_dates as
 
 solved_dates as
 (
-	-- get the latest solved date if the ticket was reopened
+	-- get the latest solved date if the ticket was reopened prior to closing
     select ticket_id, max(audit_date) as solved_date
     from audit_info
     where audit_value = 'solved'
     group by ticket_id
 )
 
-select a.ticket_id, ticket_date, first_reply_date, solved_date
+select a.ticket_id, ticket_date, first_reply_date, solved_date, satisfaction_score
 from ticket_info a
 left outer join first_audit_dates b
 	on a.ticket_id = b.ticket_id
 left outer join solved_dates c
-	on b.ticket_id = c.ticket_id
+	on a.ticket_id = c.ticket_id
 

@@ -5,7 +5,7 @@ select
 	author_id,
 	_rjm_source_key_id as audit_id,
 	value
-from zendesk_pipeline.audits__events
+from zendesk.audits__events
 where
 	-- data for some tickets is missing. See zendesk_audits
 	_rjm_source_key_id in
